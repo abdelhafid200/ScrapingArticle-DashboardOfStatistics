@@ -1,0 +1,388 @@
+<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Attendance Dashboard | By Code Info</title>
+  <!-- <link rel="stylesheet" href="style.css" /> -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" type="text/js" href="{{ url_for('static', filename='scripts.js') }}">
+  <!-- Font Awesome Cdn Link -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+   <!-- Montserrat Font -->
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+   <!-- Material Icons -->
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+</head>
+<body>
+      <!--  le Header  -->
+  <div class="grid-container">
+
+    <header class="header">
+      <div class="menu-icon" onclick="openSidebar()">
+        <span class="material-icons-outlined">menu</span>
+      </div>
+      <div class="header-left">
+        <span class="material-icons-outlined">search</span>
+      </div>
+      <div class="header-right">
+        Article Statistics
+      </div>
+    </header>
+
+    <!-- fin Header -->
+
+    <!-- Sidebar  -->
+    <aside id="sidebar">
+      <div class="sidebar-title">
+        <div class="sidebar-brand">
+          <i class="fas fa-newspaper"></i> Articles
+        </div>
+        <span class="material-icons-outlined" onclick="closeSidebar()">close</span>
+      </div>
+
+      <ul class="sidebar-list">
+        <li class="sidebar-list-item">
+          <a href="#" target="_blank">
+            <span class="material-icons-outlined">dashboard</span> Dashboard
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="#" target="_blank">
+            <span class="material-icons-outlined">inventory_2</span> Articles
+          </a>
+        </li>
+        <li class="sidebar-list-item">
+          <a href="#" target="_blank">
+            <span class="material-icons-outlined">category</span> Categories
+          </a>
+        </li>
+        
+      </ul> 
+    </aside>
+    <!-- Fin sidebar -->
+
+
+<div class="">
+  <section class="main">
+    <div class="users" style="justify-content: center;">
+      <div class="card">
+        <div class="color_statistiques">
+          <img src="https://media.istockphoto.com/id/479427562/fr/photo/printemps-arabe-%C3%A9crit-le-journal.webp?b=1&s=170667a&w=0&k=20&c=_jmkhvRKjVRSuV-avnCpDoFnQLghqI8mAr7TjtusM8Y=">
+          <h4>CATEGORIES</h4>
+        </div>
+        <!-- <p>Sections</p> -->
+        <div class="per">
+          <table>
+            <tr>
+              <td><span>{{ num_sections }}</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="color_statistiques">
+          <img src="https://media.istockphoto.com/id/157399872/fr/photo/actualit%C3%A9s-internationales.webp?b=1&s=170667a&w=0&k=20&c=S_bYh3kSzVgk1Xjxaq0nLP10VzA64rYjrHX-nnT2eMs=">
+          <h4>ARTICLES</h4>
+        </div>
+        <!-- <p>Nombre totale d'articles</p> -->
+        <div class="per">
+          <table>
+            <tr>
+              <td><span>{{ num_articles }}</span></td>
+            </tr>
+          </table>
+        </div>
+        
+      </div>
+      <div class="card">
+
+        <div >
+          <div class="color_statistiques">
+            <img src="https://media.istockphoto.com/id/904150194/fr/photo/concept-de-r%C3%A9alit%C3%A9-ou-fake-main-flip-changement-cube-bois-le-mot-avril-fools-day.jpg?s=612x612&w=0&k=20&c=kzLpknE8kSibBeYiwT1p-tR2bCni4wskjDYyw8PAmyY=">
+            <h4>SENTIMENTS</h4>
+          </div>
+        </div>
+        <!-- <p>Sentiments positifs</p> -->
+        <div class="per">
+          <table>
+            <tr style="position: relative;
+            bottom: -6px;">
+              <td><span style="font-size: small;">positifs</span></td>
+              <td><span style="font-size: small;">négatives</span></td>
+              <td><span style="font-size: small;">neutre</span></td>
+            </tr>
+            <tr style="text-align: center;">
+                {% for sentiment, count in sentiment_counts.items() %}
+                  {% if sentiment != 'None' %}
+                    <td><span>{{ count }}</span></td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+          </table>
+        </div>
+        
+      </div>
+    </div>
+
+    <div class="charts"> 
+      <div class="charts-card">
+        <h2 class="chart-title">Articles sur les sentiments</h2>
+          <div id="myPieChart" >
+          </div>
+          <!-- <div class="custom-legend">
+            <span class="legend-item" style="color: #A2FF86;">Positifs</span>
+            <span class="legend-item" style="color: #F70D1A;">Négatif</span>
+            <span class="legend-item" style="color: #4482FF;">Neutre</span>
+          </div> -->
+      </div> 
+      <div class="charts-card">
+        <h2 class="chart-title">Graphique Émotions : Articles Tendances</h2>
+        <div id="area-chart"></div>
+      </div>   
+    </div>
+
+    <section class="attendance">
+      <div class="attendance-list">
+        <h1>Liste des Catégories</h1>  
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Section</th>
+              <th>Nombre d'articles par section</th>
+              <th>les articles positifs</th>
+              <th>les articles négatives</th>
+              <th>les articles neutre</th>
+              <th>Link d'article</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            {% for section, count in section_article_counts.items() %}
+              {% if loop.index % 2 == 0  %}     
+                <tr class="active" style="background-color:#263043;" >
+                    <td class="d-flex">{{ loop.index }}
+                      {% for image in images_section[section] %}
+                        <img src="{{image}}" alt="" width="50" height="auto"/>
+                      {% endfor %}
+                    </td>
+                    <td>{{ section }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ sentiment_counts_by_section[section]['positif'] }}</td>
+                    <td>{{ sentiment_counts_by_section[section]['négatif'] }}</td>
+                    <td>{{ sentiment_counts_by_section[section]['neutre'] }}</td>
+                    <td>
+                        {% for link in link_section[section] %}
+                            <a target="_blank" href="{{ link }}"><button>{{link}}</button></a><br>
+                        {% endfor %}
+                    </td>
+                </tr>
+              {% else %}
+                <tr style="background-color:#120e0e;">
+                  <td class="d-flex fw-bold" style="font-weight: bold;">
+                      {{ loop.index }}
+                      {% for image in images_section[section] %}
+                        <img src="{{image}}" alt="" width="50" height="auto"/>
+                      {% endfor %}
+                  </td>
+                  <td>{{ section }}</td>
+                  <td>{{ count }}</td>
+                  <td>{{ sentiment_counts_by_section[section]['positif'] }}</td>
+                  <td>{{ sentiment_counts_by_section[section]['négatif'] }}</td>
+                  <td>{{ sentiment_counts_by_section[section]['neutre'] }}</td>
+                  <td>
+                      {% for link in link_section[section] %}
+                          <a target="_blank" href="{{ link }}"><button>{{link}}</button></a><br>
+                      {% endfor %}
+                  </td>
+                </tr>
+              {% endif %}
+          {% endfor %}
+          </tbody>
+        </table>
+        
+      </div>
+    </section>
+    
+  </section>
+</div>
+</div>
+
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.44.0/apexcharts.min.js"></script>
+<!-- <script src="static/scripts.js"></script> -->
+
+
+<script>
+  var options = {
+    series: [
+      {% for sentiment, count in sentiment_counts.items() %}
+        {% if sentiment != 'None' %}
+          {{ count }},
+        {% endif %}
+      {% endfor %}
+    ],
+    labels: ['positifs', 'négatif', "neutre"],
+    chart: {
+      type: "donut",
+      fontFamily: "Quicksand, sans-serif",
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "75%",
+          background: "#dddddda6",
+          borderAlpha: 0,
+        }
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      lineCap: "round",
+    },
+    colors: ["#A2FF86", "#F70D1A", "#4482FF"],
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      show: true,
+      floating: false,
+      fontSize: "14px",
+      offsetX: 0,
+      offsetY: -10,
+      // how to make the label in color white
+      labels: {
+        colors: "#fff"
+        }
+
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200,
+          height: 150,
+        },
+        legend: {
+          position: "bottom"
+        }
+      }
+    }]
+  };
+  
+  var chart = new ApexCharts(document.querySelector("#myPieChart"), options);
+  chart.render();
+  
+  
+  
+  
+  
+// --------------------------------------------------------------------------------------------
+
+
+var barChartOptions = {
+  series: [
+    {% for sentiment in sentiment_statistics %}
+    {
+      name: '{{sentiment.name}}',
+      data: {{sentiment.data}},
+    },
+    {% endfor %}
+  ],
+  chart: {
+    type: 'bar',
+    height: 350,
+    stacked: true,
+    toolbar: {
+      show: true,
+      
+      },
+    
+    zoom: {
+      enabled: true
+    }
+  },
+  responsive: [{
+    breakpoint: 480,
+    options: {
+      legend: {
+        position: 'bottom',
+        offsetX: -10,
+        offsetY: 0
+      }
+    }
+  }],
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      borderRadius: 10,
+      dataLabels: {     
+        total: {       
+          enabled: true,
+          style: {
+            // how to make the label white ?
+            color: '#fff',
+            fontSize: '13px',
+            fontWeight: 900,
+          }
+        }
+      }
+    },
+  },
+  xaxis: {
+    type: 'text',
+    categories: [
+      {% for n in section_names %}
+      '{{n}}',
+      {% endfor %}
+    ],
+    labels: {
+      style: {
+        colors: '#fff', // Set label color to white
+        fontSize: '14px', // Customize font size
+        fontWeight: 600, // Customize font weight
+      },
+    },
+  },
+  yaxis: {
+    labels: {
+      style: {
+        colors: '#fff', // Set label color to white
+        fontSize: '14px', // Customize font size
+        fontWeight: 600, // Customize font weight
+      },
+    },
+  },
+  legend: {
+    position: 'right',
+    offsetY: 40,  
+    labels: {
+      colors: "#fff"
+      }
+  },
+  fill: {
+    opacity: 1
+  }
+};
+
+var chart = new ApexCharts(document.querySelector("#area-chart"), barChartOptions);
+chart.render();
+
+</script>
+
+  </div>
+
+
+
+
+
+
+</body>
+</html>
+</span>
